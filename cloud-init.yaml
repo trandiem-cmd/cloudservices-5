@@ -1,0 +1,26 @@
+#cloud-config
+package_update: true
+packages:
+  - apache2
+
+write_files:
+  - path: /var/www/html/index.html
+    owner: root:root
+    permission: '0644'
+    defer: true
+    content:
+      <!DOCTYPE html>
+      <html>
+      <head>
+      </head>
+      <body>
+      <Session class="hero">
+        <div class="hero-content">
+            <h2>Weekly assignment 4 - Diem Tran</h2>
+        </div>
+      </Session>
+      </body>
+      </html>
+
+runcmd:
+  - systemctl enable --now apache2

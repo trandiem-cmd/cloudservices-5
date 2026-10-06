@@ -1,0 +1,8 @@
+project_network     = "YOUR_PROJECT_NETWORK"
+name_prefix         = "week7"
+ssh_public_key_path = "~/.ssh/week7_ed25519.pub"
+ssh_allowed_cidr    = "YOUR.PUBLIC.IP/32"
+image_name          = "YOUR_IMAGE_NAME"
+flavor_name         = "YOUR_FLAVOR_NAME"
+student_name        = "Your Name"
+page_message        = "Your message here"
