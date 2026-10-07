@@ -1,15 +1,3 @@
-#cloud-config
-package_update: true
-
-packages:
-  - apache2
-
-write_files:
-  - path: /var/www/html/index.html
-    owner: root:root
-    permissions: '0644'
-    defer: true
-    content: |
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -19,7 +7,6 @@ write_files:
         <style>
           body {
             font-family: Arial, sans-serif;
-            text-align: justify
             line-height: 1.6;
             max-width: 1000px;
             margin: 40px auto;
@@ -54,7 +41,7 @@ write_files:
         <h1>Week 7 – Infrastructure as Code</h1>
 
         <p>
-          <strong>Student:</strong> ${student_name}<br>
+          <strong>Student:</strong> ${student_name}
           <strong>${page_message}</strong>
         </p>
         <h2> PART A: ANSWER THE QUESTIONS </h2>
@@ -164,9 +151,9 @@ write_files:
         <p><b>- Prediction:</b></p>
         <p> 
         • Will the VM be updated in place, or destroyed and re-created? Why?<br>
-            The VM to be destroyed and recreated because page_message is passed to user_data, which is used by cloud-init when the VM is created.<br>
+            I expect the VM to be destroyed and recreated because page_message is passed to user_data, which is used by cloud-init when the VM is created.<br>
         • Will the public IP address change after apply?<br>
-            The public IP to change because the floating IP is attached to the network port, and the port may be recreated together with the VM.<br>
+            I expect the public IP to change because the floating IP is attached to the network port, and the port may be recreated together with the VM.<br>
         </p>
         <p><b>- Result:</b></p>
         <p>After changing page_message in terraform.tfvars, tofu plan showed:</p>
@@ -184,7 +171,7 @@ write_files:
         Therefore, replacing the VM did not necessarily mean that the floating IP resource itself had to be replaced. In this apply, the same floating IP was retained, so the public IP remained 86.50.231.203.<br>
         </p>
         <img src="https://a3s.fi/swift/v1/week7/iac-10.png" />
-        <p><b>1.2. Option B — allow HTTPS </b></p>
+        <p><b>1.2. Option B — allow HTTPS too </b></p>
         <p>Change the code so that the security group also allows HTTPS (TCP 443) from anywhere.</p>
         <img src="https://a3s.fi/swift/v1/week7/iac-11.png" />
         <p><b>- Prediction:</b></p>
@@ -208,7 +195,7 @@ write_files:
         <p><b>2.1. Part 1 — a deleted rule</b></p>
         <img src="https://a3s.fi/swift/v1/week7/iac-13.png" />
         <p><b>- Prediction:</b></p>
-        <p>Tofu plan will notice that the HTTP port 80 rule is missing and propose to add it back. The HTTP rule is defined in main.tf and tracked in the OpenTofu state, but it has been deleted from the actual OpenStack infrastructure.<br></p>
+        <p>I predict that tofu plan will notice that the HTTP port 80 rule is missing and propose to add it back. The HTTP rule is defined in main.tf and tracked in the OpenTofu state, but it has been deleted from the actual OpenStack infrastructure.<br></p>
         <p><b>- Result:</b></p>
         Run tofu plan and tofu apply:<br>
         <img src="https://a3s.fi/swift/v1/week7/iac-14.png" />
@@ -218,7 +205,7 @@ write_files:
         <p><b>2.2. Part 2 — an added rule:</b></p>
         <img src="https://a3s.fi/swift/v1/week7/iac-16.png" />
         <p><b>- Prediction:</b></p>
-        <p>Tofu plan will not detect the manually added TCP port 8080 rule and will show no changes.</p>
+        <p>I predict that tofu plan will not detect the manually added TCP port 8080 rule and will show no changes.</p>
         <p><b>- Result:</b></p>
         <img src="https://a3s.fi/swift/v1/week7/iac-17.png" /><br>
         </p>
@@ -235,12 +222,12 @@ write_files:
         <p><b>- Prediction:</b></p>
         <p>
         •	How many resources will tofu destroy remove? Will it touch the project network?<br>
-        Tofu destroy will remove 8 resources managed by OpenTofu: the VM, floating IP, network port, security group, three security group rules, and keypair.<br>
+        I predict that tofu destroy will remove 8 resources managed by OpenTofu: the VM, floating IP, network port, security group, three security group rules, and keypair.<br>
         The project network will not be destroyed because it is referenced as a data source rather than managed as an OpenTofu resource.<br>
         •	In which order will the resources be destroyed? Use the references in main.tf to reason about it.<br>
-        OpenTofu will destroy resources according to their dependency relationships. Resources that depend on other resources must be removed before their dependencies.<br>
+        I predict that OpenTofu will destroy resources according to their dependency relationships. Resources that depend on other resources must be removed before their dependencies.<br>
         •	After re-creating, will the public IP be the same as before?<br>
-        The public IP may be different after recreating the infrastructure because the floating IP will be destroyed and a new floating IP may be allocated during tofu apply.<br>
+        I expect that the public IP may be different after recreating the infrastructure because the floating IP will be destroyed and a new floating IP may be allocated during tofu apply.<br>
         </p>
         <p><b>- Result:</b></p>
         <img src="https://a3s.fi/swift/v1/week7/iac-18.png" />
@@ -270,6 +257,3 @@ write_files:
         <p>During the experiment, I encountered several problems. The web server initially did not work because of an error in my cloud-init.yaml, which I fixed by correcting the Apache configuration and recreating the VM. I also changed page_message without seeing any changes in tofu plan; I found that the variable was not used in the cloud-init template and fixed it by adding ${page_message}. Finally, during the configuration drift experiment, I accidentally tried to delete the whole security group instead of only the HTTP rule. I corrected this by deleting only the port 80 rule from the security group's Manage Rules page.</p>
       </body>
       </html>
-
-runcmd:
-  - systemctl enable --now apache2
